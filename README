@@ -1,0 +1,30 @@
+Name: kdtree-ruby-js
+  K Nearest neighbour search implementation on Javascript using a serialized kdtree as json.
+  Build a kdtree with ruby on server and consume that on javascript client.
+
+License:
+  MIT
+
+Version:
+  0.1
+
+Copyright:
+  Copyright (c) 2011 [Carlos Bolaños aka cartuchogl](http://urbin.es).
+
+Dependencies:
+  - ruby to use provided test
+  - a web browser with javascript
+
+Use:
+  You can try a benchmark comparation using server.rb webrick script.
+  # ruby server.rb
+  on browser you navigate to http://localhost:12000 and see results.
+
+Notes:
+  Use maglev ruby kdtree implementation on 
+  http://maglevity.wordpress.com/2009/12/17/kd-trees-and-maglev/
+
+TODO:
+  - Explain more
+  - Change values of test on the page.
+

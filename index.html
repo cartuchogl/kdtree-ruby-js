@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es">
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>KNN JS test</title>
+		<script src="/data.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body id="main">
+		<h1>Test Nearest neighbour search over prebuild kdtree vs brute force</h1>
+		<pre>
+		<script type="text/javascript" charset="utf-8">
+		
+		bestk = null
+		function knn(node,point,level) {
+			level = level ? level : 0;
+			var acum = 0;
+			var v = node.v
+			for(var c=0;c<node.v.length;c++) {
+				var dif = v[c]-point[c];
+				acum += dif*dif;
+			}
+			node.d = Math.sqrt(acum);
+			if(bestk==null || (bestk&&bestk.d>=node.d))
+				bestk = node;
+			var dim = level % 2;
+			var kv;
+			if(node.l) {
+				kv = point[dim]-bestk.d;
+				if(kv<v[dim])
+					knn(node.l,point,level+1);
+			}
+			if(node.r) {
+				kv = point[dim]+bestk.d;
+				if(kv>v[dim])
+					knn(node.r,point,level+1);
+			}
+			return bestk;
+		}
+		
+		ary = []
+		function make_ary(tree) {
+			ary.push(tree.v);
+			if(tree.l)
+				make_ary(tree.l)
+			if(tree.r)
+				make_ary(tree.r)
+		}
+		
+		function brute_search(point) {
+			var nearest = null;
+			var nearest_d = 0;
+			for(var i=0;i<ary.length;i++) {
+				var acum = 0;
+				for(var c=0;c<point.length;c++) {
+					var dif = ary[i][c]-point[c];
+					acum += dif*dif;
+				}
+				var d = Math.sqrt(acum);
+				if (nearest==null) {
+					nearest = ary[i];
+					nearest_d = d;
+				} else if(nearest_d>d) {
+					nearest = ary[i];
+					nearest_d = d;
+				}
+			}
+			return nearest;
+		}
+		
+		function test_knn(point) {
+			var found = knn(tree,point).v;
+			var guay = true;
+			for(var c=0;c<point.length;c++) {
+				guay &= Math.round(point[c])==found[c];
+			}
+			if(!guay)
+				document.write("\n<span style=\"color:"+(guay?"green":"red")+"\">["+point+"] => ["+found+"]"+"</span>");
+			bestk = null;
+		}
+		
+		function test_brute(point) {
+			var found = brute_search(point);
+			var guay = true;
+			for(var c=0;c<point.length;c++) {
+				guay &= Math.round(point[c])==found[c];
+			}
+			if(!guay)
+				document.write("\n<span style=\"color:"+(guay?"green":"red")+"\">["+point+"] => ["+found+"]"+"</span>");
+		}
+		
+		function benchmark(times,func) {
+			var ini = new Date().getTime();
+			for( var cont=0; cont<10; cont++ )
+				func();
+			var fin = new Date().getTime();
+			return (fin-ini)+"ms";
+		}
+		
+		make_ary(tree);
+		
+		document.write("\nknn   time: " + benchmark( 10, function() {
+			for( var x=1; x<=50; x++)
+				for( var y=1; y<=50; y++)
+					test_knn( [x+0.499, y+0.23] );
+		}));
+		
+		document.write("\nbrute time: "+benchmark( 10, function() {
+			for( var x=1; x<=50; x++)
+				for( var y=1; y<=50; y++)
+					test_brute( [x+0.499, y+0.23] );
+		}));
+		
+		</script>
+		</pre>
+		<p>
+		</p>
+	</body>
+</html>
